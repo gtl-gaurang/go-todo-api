@@ -11,12 +11,14 @@ import (
 
 var server = controllers.Server{}
 
+//init ...
 func init() {
 	if err := godotenv.Load(); err != nil {
 		log.Print("sad .env file found")
 	}
 }
 
+//Run ...
 func Run() {
 	var err error
 	err = godotenv.Load()
