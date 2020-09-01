@@ -1,6 +1,19 @@
 
-### TASK REST API IN GO LANG 
+### TASK REST APIS IN GO LANG 
+- Go application environment built using the go mod
+- .env used for environment configuration
+- Task can be created by /api/v1/task 
+- Task can be updated by /api/v1/task/:id
+- Task list /api/v1/task
 
-### DEVELOPMENT MODE START PROJECT 
+### GO DEVELOPMENT MODE START PROJECT 
+- nodemon is used for the auto load file into development mod
 - npm install -g nodemon
 - nodemon 
+
+### GO BUILD
+- go build main.go
+
+### GO SERVER
+- PORT : 7999
+- http://localhost:7999/
