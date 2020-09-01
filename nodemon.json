@@ -1,0 +1,6 @@
+{
+    "watch": ["*"],
+    "ext": "go graphql",
+    "ignore": ["*gen*.go"],
+    "exec": "go run main.go && (killall -9 server || true ) && go run ./main.go"
+  }
