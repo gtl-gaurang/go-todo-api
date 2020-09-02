@@ -1,6 +1,11 @@
 package middlewares
 
-import "github.com/gin-gonic/gin"
+import (
+	"net/http"
+	"todo-api/api/auth"
+
+	"github.com/gin-gonic/gin"
+)
 
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -12,6 +17,23 @@ func CORSMiddleware() gin.HandlerFunc {
 
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(204)
+			return
+		}
+		c.Next()
+	}
+}
+
+func TokenAuthMiddleware() gin.HandlerFunc {
+	errList := make(map[string]string)
+	return func(c *gin.Context) {
+		err := auth.TokenValid(c.Request)
+		if err != nil {
+			errList["unauthorized"] = "Unauthorized"
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"status": http.StatusUnauthorized,
+				"error":  errList,
+			})
+			c.Abort()
 			return
 		}
 		c.Next()

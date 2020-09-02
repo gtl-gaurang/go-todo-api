@@ -11,10 +11,8 @@ import (
 
 // Task ... Task table structure
 type Task struct {
-	gorm.Model
-	ID          uint32 `gorm:"primary_key;auto_increment" json:"id"`
-	UserID      int    `gorm:"not null" json:"user_id"`
-	User        User
+	ID          uint32    `gorm:"primary_key;auto_increment" json:"id"`
+	UserID      uint32    `gorm:"not null" json:"user_id"`
 	Name        string    `gorm:"size:255;not null" json:"name"`
 	Description string    `gorm:"size:255;not null" json:"description"`
 	IsCompleted bool      `gorm:"size:1; default:0" json:"is_completed"`

@@ -18,6 +18,7 @@ type User struct {
 	DOB       time.Time `gorm:"size:10;null" json:"dob"`
 	Email     string    `gorm:"size:100;not null;unique" json:"email"`
 	Password  string    `gorm:"size:100;not null;" json:"password"`
+	Task      []Task    `json:"tasks"`
 	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 }
@@ -64,6 +65,21 @@ func (u *User) Validate(action string) map[string]string {
 				errorMessages["Invalid_email"] = err.Error()
 			}
 		}
+	case "login":
+		if u.Password == "" {
+			err = errors.New("Required Password")
+			errorMessages["Required_password"] = err.Error()
+		}
+		if u.Email == "" {
+			err = errors.New("Required Email")
+			errorMessages["Required_email"] = err.Error()
+		}
+		if u.Email != "" {
+			if err = checkmail.ValidateFormat(u.Email); err != nil {
+				err = errors.New("Invalid Email")
+				errorMessages["Invalid_email"] = err.Error()
+			}
+		}
 	default:
 		if u.Name == "" {
 			err = errors.New("Required User full Name")
@@ -82,6 +98,19 @@ func (u *User) AddUser(db *gorm.DB) (*User, error) {
 		return &User{}, err
 	}
 	return u, nil
+}
+
+//FindUserByID ...
+func (u *User) FindUserByID(db *gorm.DB, uid uint32) (*User, error) {
+	var err error
+	err = db.Debug().Model(User{}).Where("id = ?", uid).Take(&u).Error
+	if err != nil {
+		return &User{}, err
+	}
+	if gorm.IsRecordNotFoundError(err) {
+		return &User{}, errors.New("User Not Found")
+	}
+	return u, err
 }
 
 //GetAllUser ... Get All user

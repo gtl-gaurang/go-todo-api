@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	"todo-api/api/auth"
 	"todo-api/api/models"
 	"todo-api/api/utils/formaterror"
 
@@ -26,9 +27,10 @@ func (s *Server) AddTask(c *gin.Context) {
 		})
 		return
 	}
+	uid, err := auth.ExtractTokenID(c.Request)
 
 	task := models.Task{}
-
+	task.UserID = uid
 	err = json.Unmarshal(body, &task)
 	if err != nil {
 		errList["Unmarshal_error"] = "Cannot unmarshal body"
@@ -51,6 +53,7 @@ func (s *Server) AddTask(c *gin.Context) {
 	}
 
 	taskCreated, err := task.AddTask(s.DB)
+	fmt.Println("err", err)
 	if err != nil {
 		formattedError := formaterror.FormatError(err.Error())
 		errList = formattedError
