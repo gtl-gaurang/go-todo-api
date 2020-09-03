@@ -4,11 +4,11 @@ import (
 	"strings"
 )
 
-var errorMessages = make(map[string]string)
-
 var err error
 
+// FormatError ...
 func FormatError(errString string) map[string]string {
+	var errorMessages = make(map[string]string)
 
 	if strings.Contains(errString, "username") {
 		errorMessages["Taken_username"] = "Username Already Taken"

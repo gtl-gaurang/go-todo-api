@@ -25,3 +25,4 @@
 ### WORKING ON BELOW FEATURES
 - multiple joins 
 - update value with single entity
+- example with sql data types
