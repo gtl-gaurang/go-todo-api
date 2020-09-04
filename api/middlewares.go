@@ -1,4 +1,4 @@
-package middlewares
+package api
 
 import (
 	"net/http"
@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// CORSMiddleware ...
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
@@ -23,6 +24,7 @@ func CORSMiddleware() gin.HandlerFunc {
 	}
 }
 
+// TokenAuthMiddleware ...
 func TokenAuthMiddleware() gin.HandlerFunc {
 	errList := make(map[string]string)
 	return func(c *gin.Context) {

@@ -15,8 +15,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+var errList = map[string]string{}
+
 // CreateUser ...
-func (s *Server) CreateUser(c *gin.Context) {
+func CreateUser(c *gin.Context) {
 	errList = map[string]string{}
 
 	body, err := ioutil.ReadAll(c.Request.Body)
@@ -68,7 +70,7 @@ func (s *Server) CreateUser(c *gin.Context) {
 }
 
 // Login ...
-func (s *Server) Login(c *gin.Context) {
+func Login(c *gin.Context) {
 	errList = map[string]string{}
 
 	body, err := ioutil.ReadAll(c.Request.Body)
@@ -114,7 +116,7 @@ func (s *Server) Login(c *gin.Context) {
 }
 
 // SignIn ...
-func (s *Server) SignIn(email, password string) (map[string]interface{}, error) {
+func SignIn(email, password string) (map[string]interface{}, error) {
 
 	var err error
 
@@ -145,7 +147,7 @@ func (s *Server) SignIn(email, password string) (map[string]interface{}, error) 
 }
 
 // GetUserByID ...
-func (s *Server) GetUserByID(c *gin.Context) {
+func (s *App) GetUserByID(c *gin.Context) {
 
 	//clear previous error if any
 	errList = map[string]string{}

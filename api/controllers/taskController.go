@@ -14,7 +14,7 @@ import (
 )
 
 // AddTask ... New task add
-func (s *Server) AddTask(c *gin.Context) {
+func AddTask(c *gin.Context) {
 	errList = map[string]string{}
 
 	body, err := ioutil.ReadAll(c.Request.Body)
@@ -52,7 +52,7 @@ func (s *Server) AddTask(c *gin.Context) {
 		return
 	}
 
-	taskCreated, err := task.AddTask(s.DB)
+	taskCreated, err := task.AddTask(app.DB)
 	fmt.Println("err", err)
 	if err != nil {
 		formattedError := formaterror.FormatError(err.Error())
@@ -70,7 +70,7 @@ func (s *Server) AddTask(c *gin.Context) {
 }
 
 // GetAllTask ... get the list of all task
-func (s *Server) GetAllTask(c *gin.Context) {
+func GetAllTask(c *gin.Context) {
 	task := models.Task{}
 
 	tasks, err := task.GetAllTask(s.DB)
@@ -89,7 +89,7 @@ func (s *Server) GetAllTask(c *gin.Context) {
 }
 
 // UpdateTask ... Update Task by Id
-func (s *Server) UpdateTask(c *gin.Context) {
+func UpdateTask(c *gin.Context) {
 
 	//clear previous error if any
 	errList = map[string]string{}
@@ -97,7 +97,7 @@ func (s *Server) UpdateTask(c *gin.Context) {
 	taskID := c.Param("id")
 
 	// Check if the user id is valid
-	tid, err := strconv.ParseUint(taskID, 10, 32)
+	tid, err := strconv.ParseInt(taskID, 10, 32)
 	if err != nil {
 		errList["Invalid_request"] = "Invalid Request"
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -170,11 +170,11 @@ func (s *Server) UpdateTask(c *gin.Context) {
 }
 
 //DeleteTask ... Delete Task by Id
-func (s *Server) DeleteTask(c *gin.Context) {
+func DeleteTask(c *gin.Context) {
 
 	taskID := c.Param("id")
 	// Is a valid post id given to us?
-	tid, err := strconv.ParseUint(taskID, 10, 32)
+	tid, err := strconv.ParseInt(taskID, 10, 32)
 	if err != nil {
 		errList["Invalid_request"] = "Invalid Request"
 		c.JSON(http.StatusBadRequest, gin.H{
