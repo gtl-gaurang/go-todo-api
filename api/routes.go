@@ -8,8 +8,8 @@ func (app *App) InitializeRoutes() {
 	v1 := app.Router.Group("/api/v1")
 
 	//Users routes
-	v1.POST("address", controllers.CreateAddress)
-	//v1.POST("/register")
+	//v1.POST("/address", controllers.CreateAddress)
+	v1.POST("/register", controllers.CreateUser)
 	//v1.POST("/login", app.Login)
 	//v1.GET("/profile/:id", app.GetUserByID)
 

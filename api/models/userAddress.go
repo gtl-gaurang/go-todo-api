@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"fmt"
 	"html"
 	"strings"
 	"time"
@@ -69,9 +70,10 @@ func (ua *UserAddress) Validate(action string) map[string]string {
 }
 
 //AddAddress ...
-func (ua *UserAddress) AddAddress(db *gorm.DB) (*UserAddress, error) {
+func (ua *UserAddress) AddAddress() (*UserAddress, error) {
 	var err error
-	err = db.Debug().Create(&ua).Error
+	fmt.Println()
+	err = DB.Debug().Create(&ua).Error
 	if err != nil {
 		return &UserAddress{}, err
 	}

@@ -49,7 +49,7 @@ func CreateAddress(c *gin.Context) {
 		return
 	}
 
-	userAddressCreated, err := userAddress.AddAddress(s.DB)
+	userAddressCreated, err := userAddress.AddAddress()
 	if err != nil {
 		formattedError := formaterror.FormatError(err.Error())
 		errList = formattedError

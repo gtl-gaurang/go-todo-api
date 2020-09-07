@@ -2,13 +2,16 @@ package models
 
 import (
 	"errors"
+	"fmt"
 	"html"
 	"strings"
 	"time"
+	"todo-api/api/auth"
 	"todo-api/api/security"
 
 	"github.com/badoux/checkmail"
 	"github.com/jinzhu/gorm"
+	"golang.org/x/crypto/bcrypt"
 )
 
 //User ...
@@ -91,9 +94,10 @@ func (u *User) Validate(action string) map[string]string {
 }
 
 //AddUser ...
-func (u *User) AddUser(db *gorm.DB) (*User, error) {
+func (u *User) AddUser() (*User, error) {
+	fmt.Println("User value => ", &u)
 	var err error
-	err = db.Debug().Create(&u).Error
+	err = DB.Debug().Create(&u).Error
 	if err != nil {
 		return &User{}, err
 	}
@@ -101,9 +105,9 @@ func (u *User) AddUser(db *gorm.DB) (*User, error) {
 }
 
 //FindUserByID ...
-func (u *User) FindUserByID(db *gorm.DB, uid uint32) (*User, error) {
+func (u *User) FindUserByID(uid uint32) (*User, error) {
 	var err error
-	err = db.Debug().Model(User{}).Where("id = ?", uid).Take(&u).Error
+	err = DB.Debug().Model(User{}).Where("id = ?", uid).Take(&u).Error
 	if err != nil {
 		return &User{}, err
 	}
@@ -114,10 +118,10 @@ func (u *User) FindUserByID(db *gorm.DB, uid uint32) (*User, error) {
 }
 
 //GetAllUser ... Get All user
-func (u *User) GetAllUser(db *gorm.DB) (*[]User, error) {
+func (u *User) GetAllUser() (*[]User, error) {
 	var err error
 	tasks := []User{}
-	err = db.Debug().Model(&User{}).Limit(100).Find(&tasks).Error
+	err = DB.Debug().Model(&User{}).Limit(100).Find(&tasks).Error
 	if err != nil {
 		return &[]User{}, err
 	}
@@ -126,8 +130,8 @@ func (u *User) GetAllUser(db *gorm.DB) (*[]User, error) {
 }
 
 //UpdateUser ...
-func (u *User) UpdateUser(db *gorm.DB, uid uint32) (*User, error) {
-	db = db.Debug().Model(&User{}).Where("id = ?", uid).Take(&User{}).UpdateColumns(
+func (u *User) UpdateUser(uid uint32) (*User, error) {
+	DB = DB.Debug().Model(&User{}).Where("id = ?", uid).Take(&User{}).UpdateColumns(
 		map[string]interface{}{
 			"name":       u.Name,
 			"dob":        u.DOB,
@@ -135,19 +139,50 @@ func (u *User) UpdateUser(db *gorm.DB, uid uint32) (*User, error) {
 		},
 	)
 
-	if db.Error != nil {
-		return &User{}, db.Error
+	if DB.Error != nil {
+		return &User{}, DB.Error
 	}
 
 	return u, nil
 }
 
 // DeleteUser ...
-func (u *User) DeleteUser(db *gorm.DB, uid uint32) (int64, error) {
-	db = db.Debug().Model(&User{}).Where("id = ?", uid).Take(&User{}).Delete(&User{})
+func (u *User) DeleteUser(uid uint32) (int64, error) {
+	DB = DB.Debug().Model(&User{}).Where("id = ?", uid).Take(&User{}).Delete(&User{})
 
-	if db.Error != nil {
-		return 0, db.Error
+	if DB.Error != nil {
+		return 0, DB.Error
 	}
-	return db.RowsAffected, nil
+	return DB.RowsAffected, nil
+}
+
+// SignIn ...
+func (u *User) SignIn(email, password string) (map[string]interface{}, error) {
+
+	var err error
+
+	userData := make(map[string]interface{})
+
+	user := User{}
+
+	err = DB.Debug().Model(User{}).Where("email = ?", email).Take(&user).Error
+	if err != nil {
+		fmt.Println("this is the error getting the user: ", err)
+		return nil, err
+	}
+	err = security.VerifyPassword(user.Password, password)
+	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
+		fmt.Println("this is the error hashing the password: ", err)
+		return nil, err
+	}
+	token, err := auth.CreateToken(user.ID)
+	if err != nil {
+		fmt.Println("this is the error creating the token: ", err)
+		return nil, err
+	}
+	userData["token"] = token
+	userData["id"] = user.ID
+	userData["email"] = user.Email
+
+	return userData, nil
 }

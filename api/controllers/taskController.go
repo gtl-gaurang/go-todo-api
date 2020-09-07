@@ -52,7 +52,7 @@ func AddTask(c *gin.Context) {
 		return
 	}
 
-	taskCreated, err := task.AddTask(app.DB)
+	taskCreated, err := task.AddTask()
 	fmt.Println("err", err)
 	if err != nil {
 		formattedError := formaterror.FormatError(err.Error())
@@ -73,7 +73,7 @@ func AddTask(c *gin.Context) {
 func GetAllTask(c *gin.Context) {
 	task := models.Task{}
 
-	tasks, err := task.GetAllTask(s.DB)
+	tasks, err := task.GetAllTask()
 	if err != nil {
 		errList["No_task"] = "No task Found"
 		c.JSON(http.StatusNotFound, gin.H{
@@ -131,7 +131,7 @@ func UpdateTask(c *gin.Context) {
 
 	// Check for previous details
 	formerTask := models.Task{}
-	err = s.DB.Debug().Model(models.Task{}).Where("id = ?", tid).Take(&formerTask).Error
+	_, err = formerTask.FindTaskByID(uint32(tid))
 	if err != nil {
 		errList["Task_invalid"] = "The task is does not exist"
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
@@ -152,7 +152,7 @@ func UpdateTask(c *gin.Context) {
 		return
 	}
 
-	updatedTask, err := task.UpdateTask(s.DB, uint32(tid))
+	updatedTask, err := task.UpdateTask(uint32(tid))
 	if err != nil {
 		errList := formaterror.FormatError(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -174,7 +174,7 @@ func DeleteTask(c *gin.Context) {
 
 	taskID := c.Param("id")
 	// Is a valid post id given to us?
-	tid, err := strconv.ParseInt(taskID, 10, 32)
+	tid, err := strconv.ParseUint(taskID, 10, 32)
 	if err != nil {
 		errList["Invalid_request"] = "Invalid Request"
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -186,7 +186,7 @@ func DeleteTask(c *gin.Context) {
 
 	// Check if the task exist
 	task := models.Task{}
-	err = s.DB.Debug().Model(models.Task{}).Where("id = ?", tid).Take(&task).Error
+	_, err = task.FindTaskByID(uint32(tid))
 	if err != nil {
 		errList["No_task"] = "No task Found"
 		c.JSON(http.StatusNotFound, gin.H{
@@ -197,7 +197,7 @@ func DeleteTask(c *gin.Context) {
 	}
 
 	// If all the conditions are met, delete the post
-	_, err = task.DeleteTask(s.DB, uint32(tid))
+	_, err = task.DeleteTask(uint32(tid))
 	if err != nil {
 		errList["Other_error"] = "Please try again later"
 		c.JSON(http.StatusNotFound, gin.H{

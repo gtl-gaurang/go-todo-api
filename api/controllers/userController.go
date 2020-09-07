@@ -2,17 +2,13 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
-	"todo-api/api/auth"
 	"todo-api/api/models"
-	"todo-api/api/security"
 	"todo-api/api/utils/formaterror"
 
 	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
 )
 
 var errList = map[string]string{}
@@ -53,7 +49,7 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	userCreated, err := user.AddUser(s.DB)
+	userCreated, err := user.AddUser()
 	if err != nil {
 		formattedError := formaterror.FormatError(err.Error())
 		errList = formattedError
@@ -100,7 +96,7 @@ func Login(c *gin.Context) {
 		})
 		return
 	}
-	userData, err := s.SignIn(user.Email, user.Password)
+	userData, err := user.SignIn(user.Email, user.Password)
 	if err != nil {
 		formattedError := formaterror.FormatError(err.Error())
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
@@ -115,39 +111,8 @@ func Login(c *gin.Context) {
 	})
 }
 
-// SignIn ...
-func SignIn(email, password string) (map[string]interface{}, error) {
-
-	var err error
-
-	userData := make(map[string]interface{})
-
-	user := models.User{}
-
-	err = s.DB.Debug().Model(models.User{}).Where("email = ?", email).Take(&user).Error
-	if err != nil {
-		fmt.Println("this is the error getting the user: ", err)
-		return nil, err
-	}
-	err = security.VerifyPassword(user.Password, password)
-	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
-		fmt.Println("this is the error hashing the password: ", err)
-		return nil, err
-	}
-	token, err := auth.CreateToken(user.ID)
-	if err != nil {
-		fmt.Println("this is the error creating the token: ", err)
-		return nil, err
-	}
-	userData["token"] = token
-	userData["id"] = user.ID
-	userData["email"] = user.Email
-
-	return userData, nil
-}
-
 // GetUserByID ...
-func (s *App) GetUserByID(c *gin.Context) {
+func GetUserByID(c *gin.Context) {
 
 	//clear previous error if any
 	errList = map[string]string{}
@@ -165,7 +130,7 @@ func (s *App) GetUserByID(c *gin.Context) {
 	}
 	user := models.User{}
 
-	userGotten, err := user.FindUserByID(s.DB, uint32(uid))
+	userGotten, err := user.FindUserByID(uint32(uid))
 	if err != nil {
 		errList["No_user"] = "No User Found"
 		c.JSON(http.StatusNotFound, gin.H{

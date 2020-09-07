@@ -50,9 +50,9 @@ func (t *Task) Validate(action string) map[string]string {
 }
 
 //AddTask ... Add task into DB
-func (t *Task) AddTask(db *gorm.DB) (*Task, error) {
+func (t *Task) AddTask() (*Task, error) {
 	var err error
-	err = db.Debug().Create(&t).Error
+	err = DB.Debug().Create(&t).Error
 	if err != nil {
 		return &Task{}, err
 	}
@@ -60,10 +60,10 @@ func (t *Task) AddTask(db *gorm.DB) (*Task, error) {
 }
 
 //GetAllTask ... Get All task
-func (t *Task) GetAllTask(db *gorm.DB) (*[]Task, error) {
+func (t *Task) GetAllTask() (*[]Task, error) {
 	var err error
 	tasks := []Task{}
-	err = db.Debug().Model(&Task{}).Limit(100).Find(&tasks).Error
+	err = DB.Debug().Model(&Task{}).Limit(100).Find(&tasks).Error
 	if err != nil {
 		return &[]Task{}, err
 	}
@@ -72,8 +72,8 @@ func (t *Task) GetAllTask(db *gorm.DB) (*[]Task, error) {
 }
 
 //UpdateTask ...
-func (t *Task) UpdateTask(db *gorm.DB, uid uint32) (*Task, error) {
-	db = db.Debug().Model(&Task{}).Where("id = ?", uid).Take(&Task{}).UpdateColumns(
+func (t *Task) UpdateTask(tid uint32) (*Task, error) {
+	DB = DB.Debug().Model(&Task{}).Where("id = ?", tid).Take(&Task{}).UpdateColumns(
 		map[string]interface{}{
 			"description":  t.Description,
 			"name":         t.Name,
@@ -82,19 +82,32 @@ func (t *Task) UpdateTask(db *gorm.DB, uid uint32) (*Task, error) {
 		},
 	)
 
-	if db.Error != nil {
-		return &Task{}, db.Error
+	if DB.Error != nil {
+		return &Task{}, DB.Error
 	}
 
 	return t, nil
 }
 
-// DeleteTask ...
-func (t *Task) DeleteTask(db *gorm.DB, uid uint32) (int64, error) {
-	db = db.Debug().Model(&Task{}).Where("id = ?", uid).Take(&Task{}).Delete(&Task{})
-
-	if db.Error != nil {
-		return 0, db.Error
+//FindTaskByID ...
+func (t *Task) FindTaskByID(tid uint32) (*Task, error) {
+	var err error
+	err = DB.Debug().Model(Task{}).Where("id = ?", tid).Take(&t).Error
+	if err != nil {
+		return &Task{}, err
 	}
-	return db.RowsAffected, nil
+	if gorm.IsRecordNotFoundError(err) {
+		return &Task{}, errors.New("Task Not Found")
+	}
+	return t, err
+}
+
+// DeleteTask ...
+func (t *Task) DeleteTask(tid uint32) (int64, error) {
+	DB = DB.Debug().Model(&Task{}).Where("id = ?", tid).Take(&Task{}).Delete(&Task{})
+
+	if DB.Error != nil {
+		return 0, DB.Error
+	}
+	return DB.RowsAffected, nil
 }
