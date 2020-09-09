@@ -12,8 +12,9 @@ import (
 
 // UserAddress ...
 type UserAddress struct {
-	ID           uint32    `gorm:"primary_key;auto_increment" json:"id"`
-	UserID       uint32    `gorm:"not null" json:"user_id"`
+	ID           uint32 `gorm:"primary_key;auto_increment" json:"id"`
+	UserID       uint32 `gorm:"not null" json:"user_id"`
+	User         User
 	Title        string    `gorm:"size:255;not null" json:"title"`
 	AddressLine1 string    `gorm:"size:255;null" json:"address_line1"`
 	AddressLine2 string    `gorm:"size:255;null" json:"address_line2"`

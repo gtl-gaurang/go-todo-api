@@ -15,6 +15,7 @@ var errList = map[string]string{}
 
 // CreateUser ...
 func CreateUser(c *gin.Context) {
+
 	errList = map[string]string{}
 
 	body, err := ioutil.ReadAll(c.Request.Body)
@@ -49,7 +50,7 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	userCreated, err := user.AddUser()
+	userCreated, err := models.AddUser()
 	if err != nil {
 		formattedError := formaterror.FormatError(err.Error())
 		errList = formattedError

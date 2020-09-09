@@ -21,7 +21,6 @@ type User struct {
 	DOB       time.Time `gorm:"size:10;null" json:"dob"`
 	Email     string    `gorm:"size:100;not null;unique" json:"email"`
 	Password  string    `gorm:"size:100;not null;" json:"password"`
-	Task      []Task    `json:"tasks"`
 	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 }
@@ -94,10 +93,11 @@ func (u *User) Validate(action string) map[string]string {
 }
 
 //AddUser ...
-func (u *User) AddUser() (*User, error) {
+func (db *DataSource) AddUser(u *User) (*User, error) {
+
 	fmt.Println("User value => ", &u)
 	var err error
-	err = DB.Debug().Create(&u).Error
+	err = db.DB.Debug().Create(&u).Error
 	if err != nil {
 		return &User{}, err
 	}

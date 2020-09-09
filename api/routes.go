@@ -1,20 +1,19 @@
 package api
 
-import "todo-api/api/controllers"
-
 // InitializeRoutes ...
 func (app *App) InitializeRoutes() {
 
-	v1 := app.Router.Group("/api/v1")
+	v1 := app.router.Group("/api/v1")
 
 	//Users routes
+	v1.POST("/register", app.CreateUser())
 	//v1.POST("/address", controllers.CreateAddress)
-	v1.POST("/register", controllers.CreateUser)
 	//v1.POST("/login", app.Login)
 	//v1.GET("/profile/:id", app.GetUserByID)
 
 	// Address
 	//v1.POST("/address", middlewares.TokenAuthMiddleware(), app.CreateAddress)
+
 	// Task
 	//v1.POST("/task", middlewares.TokenAuthMiddleware(), app.AddTask)
 	//v1.GET("/task", middlewares.TokenAuthMiddleware(), app.GetAllTask)
