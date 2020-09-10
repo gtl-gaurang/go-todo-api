@@ -6,8 +6,8 @@ import (
 	"html"
 	"strings"
 	"time"
-	"todo-api/api/auth"
-	"todo-api/api/security"
+	"todo-api/app/auth"
+	"todo-api/app/security"
 
 	"github.com/badoux/checkmail"
 	"github.com/jinzhu/gorm"
@@ -95,7 +95,7 @@ func (u *User) Validate(action string) map[string]string {
 //AddUser ...
 func (db *DataSource) AddUser(u *User) (*User, error) {
 
-	fmt.Println("User value => ", &u)
+	fmt.Println("User value113 => ", &u)
 	var err error
 	err = db.DB.Debug().Create(&u).Error
 	if err != nil {
@@ -105,9 +105,9 @@ func (db *DataSource) AddUser(u *User) (*User, error) {
 }
 
 //FindUserByID ...
-func (u *User) FindUserByID(uid uint32) (*User, error) {
+func (db *DataSource) FindUserByID(uid uint32, u *User) (*User, error) {
 	var err error
-	err = DB.Debug().Model(User{}).Where("id = ?", uid).Take(&u).Error
+	err = db.DB.Debug().Model(User{}).Where("id = ?", uid).Take(&u).Error
 	if err != nil {
 		return &User{}, err
 	}
@@ -118,10 +118,10 @@ func (u *User) FindUserByID(uid uint32) (*User, error) {
 }
 
 //GetAllUser ... Get All user
-func (u *User) GetAllUser() (*[]User, error) {
+func (db *DataSource) GetAllUser() (*[]User, error) {
 	var err error
 	tasks := []User{}
-	err = DB.Debug().Model(&User{}).Limit(100).Find(&tasks).Error
+	err = db.DB.Debug().Model(&User{}).Limit(100).Find(&tasks).Error
 	if err != nil {
 		return &[]User{}, err
 	}
@@ -130,8 +130,8 @@ func (u *User) GetAllUser() (*[]User, error) {
 }
 
 //UpdateUser ...
-func (u *User) UpdateUser(uid uint32) (*User, error) {
-	DB = DB.Debug().Model(&User{}).Where("id = ?", uid).Take(&User{}).UpdateColumns(
+func (db *DataSource) UpdateUser(u *User, uid uint32) (*User, error) {
+	db.DB = db.DB.Debug().Model(&User{}).Where("id = ?", uid).Take(&User{}).UpdateColumns(
 		map[string]interface{}{
 			"name":       u.Name,
 			"dob":        u.DOB,
@@ -139,25 +139,25 @@ func (u *User) UpdateUser(uid uint32) (*User, error) {
 		},
 	)
 
-	if DB.Error != nil {
-		return &User{}, DB.Error
+	if db.DB.Error != nil {
+		return &User{}, db.DB.Error
 	}
 
 	return u, nil
 }
 
 // DeleteUser ...
-func (u *User) DeleteUser(uid uint32) (int64, error) {
-	DB = DB.Debug().Model(&User{}).Where("id = ?", uid).Take(&User{}).Delete(&User{})
+func (db *DataSource) DeleteUser(uid uint32) (int64, error) {
+	db.DB = db.DB.Debug().Model(&User{}).Where("id = ?", uid).Take(&User{}).Delete(&User{})
 
-	if DB.Error != nil {
-		return 0, DB.Error
+	if db.DB.Error != nil {
+		return 0, db.DB.Error
 	}
-	return DB.RowsAffected, nil
+	return db.DB.RowsAffected, nil
 }
 
 // SignIn ...
-func (u *User) SignIn(email, password string) (map[string]interface{}, error) {
+func (db *DataSource) SignIn(email, password string) (map[string]interface{}, error) {
 
 	var err error
 
@@ -165,7 +165,7 @@ func (u *User) SignIn(email, password string) (map[string]interface{}, error) {
 
 	user := User{}
 
-	err = DB.Debug().Model(User{}).Where("email = ?", email).Take(&user).Error
+	err = db.DB.Debug().Model(User{}).Where("email = ?", email).Take(&user).Error
 	if err != nil {
 		fmt.Println("this is the error getting the user: ", err)
 		return nil, err

@@ -1,11 +1,11 @@
 package main
 
 import (
-	"todo-api/api"
+	"todo-api/app"
 )
 
 func main() {
 
-	api.Run()
+	app.Run()
 
 }

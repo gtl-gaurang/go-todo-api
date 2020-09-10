@@ -1,8 +1,8 @@
-package api
+package app
 
 import (
 	"net/http"
-	"todo-api/api/auth"
+	"todo-api/app/auth"
 
 	"github.com/gin-gonic/gin"
 )

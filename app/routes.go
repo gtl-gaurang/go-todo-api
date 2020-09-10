@@ -1,4 +1,4 @@
-package api
+package app
 
 // InitializeRoutes ...
 func (app *App) InitializeRoutes() {

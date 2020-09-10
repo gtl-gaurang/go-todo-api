@@ -1,12 +1,12 @@
-package api
+package app
 
 import (
-	"todo-api/api/controllers"
+	"todo-api/app/controllers"
 
 	"github.com/gin-gonic/gin"
 )
 
 //CreateUser ...
-func (a *App) CreateUser() func(*gin.Context) {
+func (app *App) CreateUser() func(*gin.Context) {
 	return controllers.CreateUser
 }

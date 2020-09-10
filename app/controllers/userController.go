@@ -4,15 +4,17 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"todo-api/api/auth"
-	"todo-api/api/models"
-	"todo-api/api/utils/formaterror"
+	"todo-api/app/models"
+	"todo-api/app/utils/formaterror"
 
 	"github.com/gin-gonic/gin"
 )
 
-// CreateAddress ...
-func CreateAddress(c *gin.Context) {
+var errList = map[string]string{}
+
+// CreateUser ...
+func CreateUser(c *gin.Context) {
+
 	errList = map[string]string{}
 
 	body, err := ioutil.ReadAll(c.Request.Body)
@@ -24,11 +26,9 @@ func CreateAddress(c *gin.Context) {
 		})
 		return
 	}
-	uid, err := auth.ExtractTokenID(c.Request)
 
-	userAddress := models.UserAddress{}
-	userAddress.UserID = uid
-	err = json.Unmarshal(body, &userAddress)
+	user := models.User{}
+	err = json.Unmarshal(body, &user)
 	if err != nil {
 		errList["Unmarshal_error"] = "Cannot unmarshal body"
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
@@ -38,8 +38,7 @@ func CreateAddress(c *gin.Context) {
 		return
 	}
 
-	userAddress.Prepare()
-	errorMessages := userAddress.Validate("")
+	errorMessages := user.Validate("")
 	if len(errorMessages) > 0 {
 		errList = errorMessages
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
@@ -49,7 +48,8 @@ func CreateAddress(c *gin.Context) {
 		return
 	}
 
-	userAddressCreated, err := userAddress.AddAddress()
+	userCreated, err := db.AddUser(&user)
+
 	if err != nil {
 		formattedError := formaterror.FormatError(err.Error())
 		errList = formattedError
@@ -61,6 +61,8 @@ func CreateAddress(c *gin.Context) {
 	}
 	c.JSON(http.StatusCreated, gin.H{
 		"status": http.StatusCreated,
-		"data":   userAddressCreated,
+		"data":   userCreated,
 	})
 }
+
+// Login ...

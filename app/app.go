@@ -1,11 +1,11 @@
-package api
+package app
 
 import (
 	"fmt"
 	"log"
 	"net/http"
 	"os"
-	"todo-api/api/models"
+	"todo-api/app/models"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/jinzhu/gorm/dialects/mysql" //mysql database driver
@@ -15,7 +15,7 @@ import (
 // App ... Application
 type App struct {
 	router *gin.Engine
-	db     *models.DataSource
+	db     models.DataSource
 }
 
 var errList = make(map[string]string)

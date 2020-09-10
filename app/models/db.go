@@ -41,11 +41,11 @@ func (db *DataSource) Initialize(Dbdriver, DbUser, DbPassword, DbPort, DbHost, D
 
 	db.DB.Debug().AutoMigrate(
 		&User{},
-		&UserAddress{},
-		&Task{},
+		//&UserAddress{},
+		//&Task{},
 	)
 
 	// Add Foreign Key
-	db.DB.Model(&UserAddress{}).AddForeignKey("user_id", "users(id)", "CASCADE", "RESTRICT")
-	db.DB.Model(&Task{}).AddForeignKey("user_id", "users(id)", "CASCADE", "RESTRICT")
+	//db.DB.Model(&UserAddress{}).AddForeignKey("user_id", "users(id)", "CASCADE", "RESTRICT")
+	//db.DB.Model(&Task{}).AddForeignKey("user_id", "users(id)", "CASCADE", "RESTRICT")
 }
