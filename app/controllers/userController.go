@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"todo-api/app/models"
 	"todo-api/app/utils/formaterror"
 
@@ -66,3 +67,81 @@ func CreateUser(c *gin.Context) {
 }
 
 // Login ...
+func Login(c *gin.Context) {
+	errList = map[string]string{}
+
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{
+			"status":      http.StatusUnprocessableEntity,
+			"first error": "Unable to get request",
+		})
+		return
+	}
+
+	user := models.User{}
+	err = json.Unmarshal(body, &user)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{
+			"status": http.StatusUnprocessableEntity,
+			"error":  "Cannot unmarshal body",
+		})
+		return
+	}
+	user.Prepare()
+	errorMessages := user.Validate("login")
+	if len(errorMessages) > 0 {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{
+			"status": http.StatusUnprocessableEntity,
+			"error":  errorMessages,
+		})
+		return
+	}
+	userData, err := models.DB.SignIn(user.Email, user.Password)
+	if err != nil {
+		formattedError := formaterror.FormatError(err.Error())
+		c.JSON(http.StatusUnprocessableEntity, gin.H{
+			"status": http.StatusUnprocessableEntity,
+			"error":  formattedError,
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"status": http.StatusOK,
+		"data":   userData,
+	})
+}
+
+// GetUserByID ...
+func GetUserByID(c *gin.Context) {
+
+	//clear previous error if any
+	errList = map[string]string{}
+
+	userID := c.Param("id")
+
+	uid, err := strconv.ParseUint(userID, 10, 32)
+	if err != nil {
+		errList["Invalid_request"] = "Invalid Request"
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": http.StatusBadRequest,
+			"error":  errList,
+		})
+		return
+	}
+	user := models.User{}
+
+	userGotten, err := models.DB.FindUserByID(uint32(uid), &user)
+	if err != nil {
+		errList["No_user"] = "No User Found"
+		c.JSON(http.StatusNotFound, gin.H{
+			"status": http.StatusNotFound,
+			"error":  errList,
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"status": http.StatusOK,
+		"data":   userGotten,
+	})
+}

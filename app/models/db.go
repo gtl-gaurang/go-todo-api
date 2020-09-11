@@ -13,11 +13,12 @@ type DataSource struct {
 	DB *gorm.DB
 }
 
-var DB *DataSource
+var DB = &DataSource{}
 
 // Initialize ... Used for initialize the DB connection
 func Initialize(Dbdriver, DbUser, DbPassword, DbPort, DbHost, DbName string) *DataSource {
 	var err error
+
 	fmt.Println("Database")
 	if Dbdriver == "mysql" {
 		DBURL := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", DbUser,
@@ -44,13 +45,12 @@ func Initialize(Dbdriver, DbUser, DbPassword, DbPort, DbHost, DbName string) *Da
 
 	DB.DB.Debug().AutoMigrate(
 		&User{},
-		//&UserAddress{},
-		//&Task{},
+		&UserAddress{},
+		&Task{},
 	)
 
-	return DB
-
 	// Add Foreign Key
-	//db.DB.Model(&UserAddress{}).AddForeignKey("user_id", "users(id)", "CASCADE", "RESTRICT")
-	//db.DB.Model(&Task{}).AddForeignKey("user_id", "users(id)", "CASCADE", "RESTRICT")
+	DB.DB.Model(&UserAddress{}).AddForeignKey("user_id", "users(id)", "CASCADE", "RESTRICT")
+	DB.DB.Model(&Task{}).AddForeignKey("user_id", "users(id)", "CASCADE", "RESTRICT")
+	return DB
 }
