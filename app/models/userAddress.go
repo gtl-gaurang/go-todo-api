@@ -71,7 +71,7 @@ func (ua *UserAddress) Validate(action string) map[string]string {
 func (db *DataSource) AddAddress(ua *UserAddress) (*UserAddress, error) {
 	var err error
 	fmt.Println()
-	err = db.DB.Debug().Create(&ua).Error
+	err = db.Debug().Create(&ua).Error
 	if err != nil {
 		return &UserAddress{}, err
 	}
@@ -82,7 +82,7 @@ func (db *DataSource) AddAddress(ua *UserAddress) (*UserAddress, error) {
 func (db *DataSource) GetAllAddress(ua *UserAddress) (*[]UserAddress, error) {
 	var err error
 	address := []UserAddress{}
-	err = db.DB.Debug().Model(&UserAddress{}).Limit(100).Find(&address).Error
+	err = db.Debug().Model(&UserAddress{}).Limit(100).Find(&address).Error
 	if err != nil {
 		return &[]UserAddress{}, err
 	}
@@ -92,7 +92,7 @@ func (db *DataSource) GetAllAddress(ua *UserAddress) (*[]UserAddress, error) {
 
 //UpdateAddress ...
 func (db *DataSource) UpdateAddress(aid uint32, ua *UserAddress) (*UserAddress, error) {
-	db.DB = db.DB.Debug().Model(&UserAddress{}).Where("id = ?", aid).Take(&UserAddress{}).UpdateColumns(
+	res := db.Debug().Model(&UserAddress{}).Where("id = ?", aid).Take(&UserAddress{}).UpdateColumns(
 		map[string]interface{}{
 			"title":         ua.Title,
 			"address_line1": ua.AddressLine1,
@@ -105,8 +105,8 @@ func (db *DataSource) UpdateAddress(aid uint32, ua *UserAddress) (*UserAddress, 
 		},
 	)
 
-	if db.DB.Error != nil {
-		return &UserAddress{}, db.DB.Error
+	if res.Error != nil {
+		return &UserAddress{}, res.Error
 	}
 
 	return ua, nil
@@ -114,10 +114,10 @@ func (db *DataSource) UpdateAddress(aid uint32, ua *UserAddress) (*UserAddress, 
 
 // DeleteAddress ...
 func (db *DataSource) DeleteAddress(aid uint32, ua *UserAddress) (int64, error) {
-	db.DB = db.DB.Debug().Model(&UserAddress{}).Where("id = ?", aid).Take(&UserAddress{}).Delete(&User{})
+	res := db.Debug().Model(&UserAddress{}).Where("id = ?", aid).Take(&UserAddress{}).Delete(&User{})
 
-	if db.DB.Error != nil {
-		return 0, db.DB.Error
+	if res.Error != nil {
+		return 0, res.Error
 	}
-	return db.DB.RowsAffected, nil
+	return db.RowsAffected, nil
 }

@@ -52,7 +52,7 @@ func (t *Task) Validate(action string) map[string]string {
 //AddTask ... Add task into DB
 func (db *DataSource) AddTask(t *Task) (*Task, error) {
 	var err error
-	err = db.DB.Debug().Create(&t).Error
+	err = db.Debug().Create(&t).Error
 	if err != nil {
 		return &Task{}, err
 	}
@@ -63,7 +63,7 @@ func (db *DataSource) AddTask(t *Task) (*Task, error) {
 func (db *DataSource) GetAllTask(t *Task) (*[]Task, error) {
 	var err error
 	tasks := []Task{}
-	err = db.DB.Debug().Model(&Task{}).Limit(100).Find(&tasks).Error
+	err = db.Debug().Model(&Task{}).Limit(100).Find(&tasks).Error
 	if err != nil {
 		return &[]Task{}, err
 	}
@@ -73,7 +73,7 @@ func (db *DataSource) GetAllTask(t *Task) (*[]Task, error) {
 
 //UpdateTask ...
 func (db *DataSource) UpdateTask(tid uint32, t *Task) (*Task, error) {
-	db.DB = db.DB.Debug().Model(&Task{}).Where("id = ?", tid).Take(&Task{}).UpdateColumns(
+	res := db.Debug().Model(&Task{}).Where("id = ?", tid).Take(&Task{}).UpdateColumns(
 		map[string]interface{}{
 			"description":  t.Description,
 			"name":         t.Name,
@@ -82,8 +82,8 @@ func (db *DataSource) UpdateTask(tid uint32, t *Task) (*Task, error) {
 		},
 	)
 
-	if db.DB.Error != nil {
-		return &Task{}, db.DB.Error
+	if res.Error != nil {
+		return &Task{}, res.Error
 	}
 
 	return t, nil
@@ -92,7 +92,7 @@ func (db *DataSource) UpdateTask(tid uint32, t *Task) (*Task, error) {
 //FindTaskByID ...
 func (db *DataSource) FindTaskByID(tid uint32, t *Task) (*Task, error) {
 	var err error
-	err = db.DB.Debug().Model(Task{}).Where("id = ?", tid).Take(&t).Error
+	err = db.Debug().Model(Task{}).Where("id = ?", tid).Take(&t).Error
 	if err != nil {
 		return &Task{}, err
 	}
@@ -104,10 +104,10 @@ func (db *DataSource) FindTaskByID(tid uint32, t *Task) (*Task, error) {
 
 // DeleteTask ...
 func (db *DataSource) DeleteTask(tid uint32, t *Task) (int64, error) {
-	db.DB = db.DB.Debug().Model(&Task{}).Where("id = ?", tid).Take(&Task{}).Delete(&Task{})
+	res := db.Debug().Model(&Task{}).Where("id = ?", tid).Take(&Task{}).Delete(&Task{})
 
-	if db.DB.Error != nil {
-		return 0, db.DB.Error
+	if res.Error != nil {
+		return 0, res.Error
 	}
-	return db.DB.RowsAffected, nil
+	return db.RowsAffected, nil
 }
