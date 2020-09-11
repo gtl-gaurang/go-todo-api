@@ -48,7 +48,7 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	userCreated, err := db.AddUser(&user)
+	userCreated, err := models.DB.AddUser(&user)
 
 	if err != nil {
 		formattedError := formaterror.FormatError(err.Error())
