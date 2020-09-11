@@ -97,7 +97,7 @@ func (db *DataSource) AddUser(u *User) (*User, error) {
 
 	fmt.Println("User value113 => ", &u)
 	var err error
-	err = db.DB.Debug().Create(&u).Error
+	err = db.Debug().Create(&u).Error
 	if err != nil {
 		return &User{}, err
 	}
@@ -107,7 +107,7 @@ func (db *DataSource) AddUser(u *User) (*User, error) {
 //FindUserByID ...
 func (db *DataSource) FindUserByID(uid uint32, u *User) (*User, error) {
 	var err error
-	err = db.DB.Debug().Model(User{}).Where("id = ?", uid).Take(&u).Error
+	err = db.Debug().Model(User{}).Where("id = ?", uid).Take(&u).Error
 	if err != nil {
 		return &User{}, err
 	}
@@ -121,7 +121,7 @@ func (db *DataSource) FindUserByID(uid uint32, u *User) (*User, error) {
 func (db *DataSource) GetAllUser() (*[]User, error) {
 	var err error
 	tasks := []User{}
-	err = db.DB.Debug().Model(&User{}).Limit(100).Find(&tasks).Error
+	err = db.Debug().Model(&User{}).Limit(100).Find(&tasks).Error
 	if err != nil {
 		return &[]User{}, err
 	}
@@ -131,7 +131,7 @@ func (db *DataSource) GetAllUser() (*[]User, error) {
 
 //UpdateUser ...
 func (db *DataSource) UpdateUser(u *User, uid uint32) (*User, error) {
-	db.DB = db.DB.Debug().Model(&User{}).Where("id = ?", uid).Take(&User{}).UpdateColumns(
+	res := db.Debug().Model(&User{}).Where("id = ?", uid).Take(&User{}).UpdateColumns(
 		map[string]interface{}{
 			"name":       u.Name,
 			"dob":        u.DOB,
@@ -139,8 +139,8 @@ func (db *DataSource) UpdateUser(u *User, uid uint32) (*User, error) {
 		},
 	)
 
-	if db.DB.Error != nil {
-		return &User{}, db.DB.Error
+	if res.Error != nil {
+		return &User{}, res.Error
 	}
 
 	return u, nil
@@ -148,12 +148,12 @@ func (db *DataSource) UpdateUser(u *User, uid uint32) (*User, error) {
 
 // DeleteUser ...
 func (db *DataSource) DeleteUser(uid uint32) (int64, error) {
-	db.DB = db.DB.Debug().Model(&User{}).Where("id = ?", uid).Take(&User{}).Delete(&User{})
+	res := db.Debug().Model(&User{}).Where("id = ?", uid).Take(&User{}).Delete(&User{})
 
-	if db.DB.Error != nil {
-		return 0, db.DB.Error
+	if res.Error != nil {
+		return 0, res.Error
 	}
-	return db.DB.RowsAffected, nil
+	return db.RowsAffected, nil
 }
 
 // SignIn ...
@@ -165,7 +165,7 @@ func (db *DataSource) SignIn(email, password string) (map[string]interface{}, er
 
 	user := User{}
 
-	err = db.DB.Debug().Model(User{}).Where("email = ?", email).Take(&user).Error
+	err = db.Debug().Model(User{}).Where("email = ?", email).Take(&user).Error
 	if err != nil {
 		fmt.Println("this is the error getting the user: ", err)
 		return nil, err
