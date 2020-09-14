@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"todo-api/app/models"
-	"todo-api/app/routes"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/jinzhu/gorm/dialects/mysql" //mysql database driver
@@ -17,7 +16,7 @@ import (
 func Run() {
 	router := gin.Default()
 	router.Use(CORSMiddleware())
-	routes.InitializeRoutes(router)
+	InitializeRoutes(router)
 
 	var err error
 	err = godotenv.Load()
